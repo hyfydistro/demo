@@ -1,4 +1,4 @@
-let promise = fetch('boo.png')
+let promise = fetch('boo1.png')
 
 let promise2 = promise.then(response => response.blob());
 
