@@ -56,7 +56,7 @@ Promise.all([booOriginal, booPixel, text]).then(values => {
   // Store each value returned from the promises in separate variables; create object URLs from the blobs
   let objectURL1 = URL.createObjectURL(values[0]);
   let objectURL2 = URL.createObjectURL(values[1]);
-  let decText = values[2];
+  let descText = values[2];
 
   // Display the images in <img> elements
   let image1 = document.createElement('img');
