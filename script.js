@@ -1,4 +1,4 @@
-let promise = fetch('coffee.jpg')
+let promise = fetch('https://unsplash.com/photos/qdzMLzvgHXs')
 
 let promise2 = promise.then(response => response.blob());
 
