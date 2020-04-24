@@ -3,9 +3,213 @@
   <head>
     <meta charset="utf-8">
     <title>demo</title>
-    <script src="script.js" defer></script>
+    <style media="screen">
+    /* Base Styles */
+    body {
+      font-family: sans-serif;
+    }
+
+    /* Layout Styles */
+    .wrapper {
+      width: 80%;
+      margin: 0 auto;
+      display: flex;
+    }
+
+    .controls, .results {
+      flex: 1;
+      padding: 10px;
+    }
+
+    form p:nth-of-type(1) {
+      margin-top: 0;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+
+    article p {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    article p:nth-of-type(2) {
+      font-size: 14px;
+      line-height: 2;
+    }
+
+    nav {
+      margin-bottom: 50px;
+    }
+
+    .prev {
+      float: left;
+    }
+
+    .next {
+      float: right;
+    }
+
+    article {
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #ddd;
+      border: 1px solid #ccc;
+    }
+
+    img {
+      float: right;
+      margin-left: 20px;
+      max-width: 200px;
+    }
+
+    .clearfix {
+      clear: both;
+    }
+
+    span {
+      background-color: #ccc;
+      padding: 5px;
+      margin: 5px;
+    }
+
+
+    /* Module Styles */
+    /* State Styles */
+    /* Theme Styles */
+
+    </style>
+    <!-- <script src="script.js" defer></script> -->
+    <script src="https://apis.google.com/js/client.js" type="text/javascript" defer></script>
+    <script src="https://youtube.com/iframe_api" type="text/javascript" defer></script>
+
   </head>
   <body>
     <p>This is my page</p>
+
+    <h1>YouTube video search</h1>
+
+    <div class="wrapper">
+
+      <div class="controls">
+        <form>
+          <p>
+            <label for="search">Enter a search term (required): </label>
+            <input type="text" id="search" class="search" required>
+          </p>
+          <p>
+            <button class="submit">Submit search</button>
+          </p>
+        </form>
+      </div>
+
+      <div class="results">
+        <section></section>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+    // Get references to tDOM elements we need to manipulate
+    let searchTerm = document.querySelector('.search');
+    let searchForm = document.querySelector('form');
+    let submitBtn = document.querySelector('.submit');
+    let section = document.querySelector('section');
+
+    // When the (tab) has finished loading,
+    // run onClientLoad() to get it all started
+    window.onload = onClientLoad;
+    // window.addEventListener('load', onClientLoad);
+
+    // Load and initialize the API,
+    // then run the onYouTubeApiLoad() function once this is done
+    function onClientLoad() {
+      gapi.client.load('youtube', 'v3', onYouTubeApiLoad);
+    }
+
+    // Attach your key to the API
+    function onYouTubeApiLoad() {
+      gapi.client.setApiKey('AIzaSyC6eqZ64c3Ru86rpttwTi-wFZJrpIAOa3o');
+
+      // Attach an event listener to the form so that a search is carried out
+      // when it is submitted - the search() function
+      searchForm.addEventListener('submit', search);
+    }
+
+    function search(e) {
+      // use preventDefault() to stop form actually submitting
+      e.preventDefault();
+
+      // create a search request using the Data API
+      let request = gapi.client.youtube.search.list({
+        // Set what kind of data the response will include
+        part: 'snippet',
+        // Set the search query to search for
+        q: searchTerm.value
+      });
+
+      // send the request, and specify a function to run when the response returns
+      request.execute(onSearchResponse);
+    }
+
+    // This function automatically has the response passed in as a parameter
+    function onSearchResponse(response) {
+      // Empty the <section> element
+      while (section.firstChild) {
+        section.removeChild(section.firstChild);
+      }
+
+      // Store the actual results of the search in a variable
+      let results = response.items;
+
+      // loop through the results and run displayVideo() on each
+      for (let i = 0; i < results.length; i++) {
+        displayVideo(results[i], i);
+      }
+    }
+
+    function displayVideo(result, i) {
+      // Create a div with a unique ID for each video, and append it to the <section>
+      // The YouTube Iframe Player API will replace each one with
+      // an <iframe> containing the corresponding video
+      let vid = document.createElement('div');
+      vidId = 'vid' + i;
+      vid.id = vidId;
+      section.appendChild(vid);
+
+      // Use the Yt.Player() constructor to create a new videio player object,
+      // specifying the ID of the elemnt to be replaced by it (the <div>),
+      // A height and width, and an event handler to handle the custom onReady event
+      let player = new YT.Player(vidId, {
+        height: '360',
+        width: '480',
+        videoId: result.id.videoId,
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+
+      // The onePLayerRead() handler grabs the ID of each video, and checks its duration
+      // If the duration is 0, the video can't be played, so we just delete it
+      function onPlayerReady(e) {
+        let myId = e.target.a.id;
+        let duration = e.target.getDuration();
+        if (duration === 0) {
+          console.log('Video ' + myId + ' cannot be played, so it was deleted.');
+          section.removeChild(e.target.a);
+        } else {
+          let myId = e.target.a.id;
+          console.log('Video ' + myId + ' ready to play.');
+        }
+      }
+
+    }
+
+
+    </script>
   </body>
 </html>
